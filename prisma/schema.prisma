@@ -11,3 +11,37 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Link {
+  id               String       @id @default(cuid())
+  slug             String       @unique
+  originalUrl      String
+  title            String?
+  eventName        String?
+  channel          String?
+  isActive         Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  expiresAt        DateTime?
+  clickCount       Int          @default(0)
+  uniqueClickCount Int          @default(0)
+  clicks           ClickEvent[]
+
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+model ClickEvent {
+  id        String   @id @default(cuid())
+  linkId    String
+  link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  visitedAt DateTime @default(now())
+  referrer  String?
+  userAgent String?
+  ipHash    String?
+  visitorId String?
+  isUnique  Boolean  @default(false)
+
+  @@index([linkId, visitedAt])
+  @@index([visitorId])
+}
