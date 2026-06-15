@@ -1,43 +1,45 @@
+import Link from "next/link";
 import { AppShell } from "../../components/app-shell";
+import { CreateLinkForm } from "./create-link-form";
 
-export default function NewLinkPage() {
+type NewLinkPageProps = {
+  searchParams: Promise<{
+    created?: string;
+  }>;
+};
+
+export default async function NewLinkPage({ searchParams }: NewLinkPageProps) {
+  const { created } = await searchParams;
+
   return (
-    <AppShell title="Create a link" eyebrow="Placeholder">
-      <section className="max-w-xl rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-        <div className="space-y-5">
-          <label className="block">
-            <span className="text-sm font-medium text-zinc-700">
-              Destination URL
-            </span>
-            <input
-              type="url"
-              placeholder="https://example.com"
-              disabled
-              className="mt-2 w-full rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-500"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-medium text-zinc-700">
-              Short code
-            </span>
-            <input
-              type="text"
-              placeholder="club-event"
-              disabled
-              className="mt-2 w-full rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-500"
-            />
-          </label>
-
-          <button
-            type="button"
-            disabled
-            className="rounded-md bg-zinc-300 px-4 py-2.5 text-sm font-semibold text-zinc-600"
-          >
-            Create link
-          </button>
-        </div>
-      </section>
+    <AppShell title="Create a link" eyebrow="New short link">
+      {created ? (
+        <section className="max-w-xl rounded-lg border border-teal-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-teal-700">Link created</p>
+          <h2 className="mt-2 text-xl font-semibold text-zinc-950">
+            /{created}
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-600">
+            The short link was saved and is ready to use.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/dashboard"
+              className="rounded-md bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-800"
+            >
+              Back to dashboard
+            </Link>
+            <Link
+              href="/dashboard/new"
+              className="rounded-md border border-zinc-300 px-4 py-2.5 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50"
+            >
+              Create another
+            </Link>
+          </div>
+        </section>
+      ) : (
+        <CreateLinkForm />
+      )}
     </AppShell>
   );
 }
