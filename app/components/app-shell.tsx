@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { LogoutButton } from "./logout-button";
 
 type AppShellProps = {
   children: React.ReactNode;
   title: string;
   eyebrow?: string;
+  showLogout?: boolean;
 };
 
 const navigation = [
@@ -12,7 +14,12 @@ const navigation = [
   { href: "/dashboard/new", label: "New Link" },
 ];
 
-export function AppShell({ children, title, eyebrow }: AppShellProps) {
+export function AppShell({
+  children,
+  title,
+  eyebrow,
+  showLogout = false,
+}: AppShellProps) {
   return (
     <div className="flex min-h-screen flex-col bg-stone-50 text-zinc-950">
       <header className="border-b border-zinc-200 bg-white">
@@ -20,17 +27,20 @@ export function AppShell({ children, title, eyebrow }: AppShellProps) {
           <Link href="/" className="text-xl font-semibold tracking-normal">
             FLCut
           </Link>
-          <nav aria-label="Primary navigation" className="flex flex-wrap gap-2">
-            {navigation.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex flex-wrap items-center gap-2">
+            <nav aria-label="Primary navigation" className="flex flex-wrap gap-2">
+              {navigation.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            {showLogout ? <LogoutButton /> : null}
+          </div>
         </div>
       </header>
 

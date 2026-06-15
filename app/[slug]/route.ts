@@ -13,7 +13,17 @@ type PublicLinkRouteContext = {
 const visitorCookieName = "flcut_vid";
 const uniqueWindowMs = 24 * 60 * 60 * 1000;
 
-function messagePage(title: string, message: string) {
+function messagePage({
+  title,
+  eyebrow,
+  message,
+  status,
+}: {
+  title: string;
+  eyebrow: string;
+  message: string;
+  status: number;
+}) {
   return new NextResponse(
     `<!doctype html>
 <html lang="en">
@@ -45,15 +55,28 @@ function messagePage(title: string, message: string) {
       }
 
       a {
-        color: #0f766e;
-        font-weight: 700;
         text-decoration: none;
+      }
+
+      .brand {
+        color: #09090b;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .eyebrow {
+        color: #0f766e;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin: 32px 0 8px;
+        text-transform: uppercase;
       }
 
       h1 {
         font-size: 28px;
         line-height: 1.2;
-        margin: 32px 0 12px;
+        margin: 0 0 12px;
       }
 
       p {
@@ -63,26 +86,44 @@ function messagePage(title: string, message: string) {
         margin: 0 0 24px;
       }
 
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
       .button {
         background: #0f766e;
         border-radius: 6px;
         color: white;
         display: inline-block;
         font-size: 14px;
+        font-weight: 700;
         padding: 10px 16px;
+      }
+
+      .secondary {
+        background: #ffffff;
+        border: 1px solid #d4d4d8;
+        color: #3f3f46;
       }
     </style>
   </head>
   <body>
     <main>
-      <a href="/">FLCut</a>
+      <a class="brand" href="/">FLCut</a>
+      <p class="eyebrow">${eyebrow}</p>
       <h1>${title}</h1>
       <p>${message}</p>
-      <a class="button" href="/">Go home</a>
+      <div class="actions">
+        <a class="button" href="/">Go home</a>
+        <a class="button secondary" href="/login">Dashboard login</a>
+      </div>
     </main>
   </body>
 </html>`,
     {
+      status,
       headers: {
         "content-type": "text/html; charset=utf-8",
       },
@@ -191,26 +232,35 @@ export async function GET(
   });
 
   if (!link) {
-    return messagePage(
-      "Link not found",
-      "This FLCut link does not exist. It may have been removed or typed incorrectly.",
-    );
+    return messagePage({
+      title: "Link not found",
+      eyebrow: "Missing short link",
+      message:
+        "This FLCut link does not exist. It may have been removed, renamed, or typed incorrectly.",
+      status: 404,
+    });
   }
 
   if (!link.isActive || isExpired(link.expiresAt)) {
-    return messagePage(
-      "Link expired",
-      "This FLCut link is no longer active. Please ask the club team for an updated link.",
-    );
+    return messagePage({
+      title: "Link expired",
+      eyebrow: "No longer active",
+      message:
+        "This FLCut link is no longer active, so we did not redirect you. Please ask the club team for an updated link.",
+      status: 410,
+    });
   }
 
   const destination = getSafeDestination(link.originalUrl);
 
   if (!destination) {
-    return messagePage(
-      "Link unavailable",
-      "This FLCut link points to an invalid destination, so we stopped before redirecting.",
-    );
+    return messagePage({
+      title: "Link unavailable",
+      eyebrow: "Invalid destination",
+      message:
+        "This FLCut link points to an invalid destination, so we stopped before redirecting.",
+      status: 400,
+    });
   }
 
   const existingVisitorId = request.cookies.get(visitorCookieName)?.value;

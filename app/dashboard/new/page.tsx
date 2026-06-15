@@ -12,7 +12,7 @@ export default async function NewLinkPage({ searchParams }: NewLinkPageProps) {
   const { created } = await searchParams;
 
   return (
-    <AppShell title="Create a link" eyebrow="New short link">
+    <AppShell title="Create a link" eyebrow="New short link" showLogout>
       {created ? (
         <section className="max-w-xl rounded-lg border border-teal-200 bg-white p-6 shadow-sm">
           <p className="text-sm font-medium text-teal-700">Link created</p>

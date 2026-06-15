@@ -1,36 +1,159 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FLCut
 
-## Getting Started
+FLCut is a lightweight link shortener for FLC club and campus event workflows. It helps the team create clean short links for event announcements, social posts, WhatsApp shares, and campaign materials, then review basic click activity from a protected dashboard.
 
-First, run the development server:
+The project is intentionally small. It does not include a full account system, advanced analytics, or complex charting. The current goal is a dependable internal tool that is easy to deploy, understand, and maintain.
+
+## Tech Stack
+
+- Next.js App Router with TypeScript
+- React server components and server actions
+- Tailwind CSS
+- Prisma 7
+- PostgreSQL
+- Zod for form validation
+- Simple shared-password admin protection
+
+## Core Features
+
+- Create short links from `/dashboard/new`
+- Optional custom slug, title, event name, channel, and expiry date
+- Automatic short slug generation when no slug is provided
+- Reserved slug protection for routes such as `dashboard`, `api`, `login`, `expired`, and `admin`
+- Duplicate slug prevention
+- Public redirect route at `/[slug]`
+- Link status handling for active, inactive, expired, missing, and invalid links
+- Click event tracking for each valid redirect
+- Unique click counting with a first-party visitor cookie
+- Protected dashboard with link list, search, sorting, and simple per-link analytics
+
+## Assumptions
+
+- FLCut is for internal club use, not a public SaaS product.
+- One shared admin password is enough for the current stage.
+- Link creators are trusted club operators.
+- PostgreSQL is available in local or hosted form.
+- Public short links should stay accessible without authentication.
+- Dashboard, link creation, and analytics must require admin login.
+
+## Unique Click Definition
+
+A unique click is counted as one visitor per link within a 24-hour window.
+
+The redirect route stores a first-party HTTP-only cookie named `flcut_vid`. On each valid redirect, FLCut checks whether that visitor has clicked the same link in the last 24 hours:
+
+- If not, the click event is stored with `isUnique = true` and `uniqueClickCount` is incremented.
+- If yes, the click event is still stored, but only `clickCount` is incremented.
+
+This is a practical privacy-conscious approximation, not a perfect identity system.
+
+## Expired And Invalid Link Behavior
+
+Expired or inactive links do not redirect. Instead, FLCut shows a branded expired-link page with navigation back to the home page or dashboard login.
+
+Missing slugs show a branded not-found page.
+
+Invalid destinations are blocked safely. FLCut only redirects to `http` and `https` URLs. It does not proxy, preview, or fetch destination pages.
+
+## Local Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create `.env`:
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+ADMIN_PASSWORD="change-this-password"
+```
+
+Generate the Prisma client:
+
+```bash
+npx prisma generate
+```
+
+Run migrations:
+
+```bash
+npx prisma migrate dev
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Public app: `http://localhost:3000`
+- Admin login: `http://localhost:3000/login`
+- Dashboard: `http://localhost:3000/dashboard`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment Variables
 
-## Learn More
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | PostgreSQL connection string used by Prisma and the Prisma Postgres adapter. |
+| `ADMIN_PASSWORD` | Yes | Shared admin password used to create the protected dashboard session. Never expose this to the client. |
 
-To learn more about Next.js, take a look at the following resources:
+## Database And Prisma
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The Prisma schema is in `prisma/schema.prisma`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Main models:
 
-## Deploy on Vercel
+- `Link`: stores slug, destination URL, metadata, status, expiry, and click counters.
+- `ClickEvent`: stores individual visits, referrer, user agent, hashed IP, visitor cookie id, and uniqueness flag.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The generated Prisma client outputs to `app/generated/prisma`, which is ignored by git. The `prebuild` script runs `prisma generate` before production builds.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Useful commands:
+
+```bash
+npx prisma format
+npx prisma validate
+npx prisma generate
+npx prisma migrate dev
+npx prisma migrate status
+```
+
+## Running Checks
+
+```bash
+npm run lint
+npm run build
+```
+
+`npm run build` also runs `prisma generate` through the `prebuild` script.
+
+## Deployment Notes
+
+- Set `DATABASE_URL` and `ADMIN_PASSWORD` in the deployment environment.
+- Run Prisma migrations against the production database before serving traffic.
+- Cookies are HTTP-only and use `Secure=true` automatically in production.
+- Public redirects depend on server-side database access, so deploy to a runtime that can connect to PostgreSQL.
+- The public redirect route should remain unauthenticated.
+
+## Design Decisions And Tradeoffs
+
+- Shared-password auth keeps the admin flow simple for a small club team.
+- No full user account system exists yet.
+- No advanced analytics charts are included; the analytics page uses simple summaries and activity lists.
+- The redirect route records analytics before redirecting. This is simple and reliable, though it adds a small database write before each redirect.
+- Slug generation is intentionally basic and short. Duplicate checks keep it safe enough for this stage.
+- IP addresses are hashed before storage.
+- Generated Prisma client files are not committed.
+
+## Developer Notes
+
+- Preserve the `FLCUT-AI-2627-visible` comment in `app/layout.tsx`.
+- Preserve the `loopTraceMarkerVisible` marker in the codebase.
+- Protect all `/dashboard` routes.
+- Keep `/`, `/login`, and `/[slug]` public.
+- Avoid adding product features during cleanup work; prefer small, reviewable changes.
+- If this project upgrades further on Next.js 16+, consider renaming `middleware.ts` to `proxy.ts` after confirming the deployment target supports the newer convention.
