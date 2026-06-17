@@ -1,8 +1,7 @@
 # FLCut
 
-FLCut is a lightweight link shortener for FLC club and campus event workflows. It helps the team create clean short links for event announcements, social posts, WhatsApp shares, and campaign materials, then review basic click activity from a protected dashboard.
-
-The project is intentionally small. It does not include a full account system, advanced analytics, or complex charting. The current goal is a dependable internal tool that is easy to deploy, understand, and maintain.
+FLCut is a link shortner for the Finite Loop Club. It can shorten the event link of any platform like Instagram , linkedin , Youtube etc.
+This reduces the lenght of the link and also can track link usage. This helps is having a simple and clean url for sharing through various platforms and is managed by the core team.
 
 ## Tech Stack
 
@@ -12,15 +11,14 @@ The project is intentionally small. It does not include a full account system, a
 - Prisma 7
 - PostgreSQL
 - Zod for form validation
-- Simple shared-password admin protection
 
 ## Core Features
 
-- Create short links from `/dashboard/new`
-- Optional custom slug, title, event name, channel, and expiry date
-- Automatic short slug generation when no slug is provided
-- Reserved slug protection for routes such as `dashboard`, `api`, `login`, `expired`, and `admin`
-- Duplicate slug prevention
+- It can create short links from the user entered lenghty links.
+- The maintainer can customize slug, title, event name, channel, and expiry date
+- If no slug is given , then automatic slug will be created
+- Maintainer can specify the link expiery time 
+- If the link expiers
 - Public redirect route at `/[slug]`
 - Link status handling for active, inactive, expired, missing, and invalid links
 - Click event tracking for each valid redirect
