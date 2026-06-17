@@ -8,7 +8,7 @@ This reduces the lenght of the link and also can track link usage. This helps is
 - Next.js App Router with TypeScript
 - React server components and server actions
 - Tailwind CSS
-- Prisma 7
+- Prisma 
 - PostgreSQL
 - Zod for form validation
 
@@ -33,6 +33,10 @@ A unique click is counted as one visitor per link within a 24-hour window.
 
 Expired or inactive links do not redirect to the original link. Instead,it shows a expired-link page which shows two option either back to the home page or dashboard login.
 
+## Data Model
+- `Link`: stores slug, destination URL, metadata, status, expiry, and click counters.
+- `ClickEvent`: stores individual visits, referrer, user agent, hashed IP, visitor cookie id, and uniqueness flag.
+
 ## Design Decisions
 
 - Shared-password authentication is used for simple flow so that  FLC Digital or Event Management team can easily login.
@@ -42,3 +46,15 @@ Expired or inactive links do not redirect to the original link. Instead,it shows
 
 ## DEPLOYED URL : https://flcut-seven.vercel.app/
 NOTE: Login Password is 'flcut123'
+
+### What I would build in 4 hours
+- I would build the link creation flow
+- Admin Login
+- Basic dashboard for analysis
+### What i would skip
+- Detailed analysis pages for every link
+- Event search and Sorting operation
+- Complex dashboard
+- Some options while link creation like, app name, event name
+
+
