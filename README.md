@@ -17,22 +17,13 @@ This reduces the lenght of the link and also can track link usage. This helps is
 - It can create short links from the user entered lenghty links.
 - The maintainer can customize slug, title, event name, channel, and expiry date
 - If no slug is given , then automatic slug will be created
-- Maintainer can specify the link expiery time 
-- If the link expiers
-- Public redirect route at `/[slug]`
-- Link status handling for active, inactive, expired, missing, and invalid links
-- Click event tracking for each valid redirect
-- Unique click counting with a first-party visitor cookie
+- Dashboard can only be accessed by using the password , currently it is "flcut123"
+- Maintainer can specify the link expiery time
+- If the link expiers , then it will display ,link expired page
+- If the link is not created or the slug is wrong then it will display the link not found page.
+- Status or the analytics of the link can be tracked , active, inactive, expired unique clicks etc
+- Unique click is counted for a a first-party visitor cookie
 - Protected dashboard with link list, search, sorting, and simple per-link analytics
-
-## Assumptions
-
-- FLCut is for internal club use, not a public SaaS product.
-- One shared admin password is enough for the current stage.
-- Link creators are trusted club operators.
-- PostgreSQL is available in local or hosted form.
-- Public short links should stay accessible without authentication.
-- Dashboard, link creation, and analytics must require admin login.
 
 ## Unique Click Definition
 
